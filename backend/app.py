@@ -24,6 +24,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Serve index.html at root
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    with open("static/index.html", "r") as f:
+        return HTMLResponse(content=f.read())
+        
 @app.get("/api/vms")
 def list_vms(token: str = Depends(verify_token)):
     return proxmox_list_vms()
